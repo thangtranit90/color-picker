@@ -14,7 +14,22 @@ pipeline {
         }
       }
     }
-    
+
+    stage ('Build') {
+      steps {
+        nodejs(nodeJSInstallationName: 'nodejs 8.9.4') {
+          sh 'echo "Build application..."'
+          sh 'npm run build'
+          sh 'echo "Build application successfully."'
+          sh 'ls -al'
+        }
+        script {
+          stash includes: 'build/', name: 'build'
+          stash includes: 'docker/', name: 'docker_folder'
+        }
+      }
+    }
+
     stage ('Test') {
       steps {
         nodejs(nodeJSInstallationName: 'nodejs 8.9.4') {
@@ -27,20 +42,12 @@ pipeline {
       }
     }
 
-    stage ('Build') {
-      steps {
-        nodejs(nodeJSInstallationName: 'nodejs 8.9.4') {
-          sh 'echo "Build application..."'
-          sh 'npm run build'
-          sh 'echo "Build application successfully."'
-          sh 'ls -al'
-        }
-      }
-    }
-
     stage ('Create docker images') {
-      agent any
       steps {
+        script {
+          unstash 'build'
+          unstash 'docker_folder'
+        }
         sh '''
           ls -al
           echo "Starting to build docker image"
