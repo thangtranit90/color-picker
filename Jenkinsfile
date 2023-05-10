@@ -2,12 +2,6 @@ pipeline {
   agent any
 
   stages {
-    stage('Checkout source code') {
-      steps {
-        checkout scm
-      }
-    }
-
     stage ('Install dependencies') {
       steps {
         nodejs(nodeJSInstallationName: 'nodejs 8.9.4') {
