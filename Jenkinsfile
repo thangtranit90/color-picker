@@ -10,7 +10,8 @@ pipeline {
 
     stage ('Install dependencies') {
       tools {
-        nodejs 'nodejs 8.9.4'
+        // nodejs 'nodejs 8.9.4'
+        nodejs 'nodejs 12.0.0'
       }
       steps {
         sh '''
