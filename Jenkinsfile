@@ -1,59 +1,59 @@
 pipeline {
-  agent any
+    agent any
 
-  stages {
-    stage ('Install dependencies') {
-      steps {
-        nodejs(nodeJSInstallationName: 'nodejs 8.9.4') {
-          sh '''
-            echo "Installing..."
-            npm install
-            echo "Install dependencies successfully."
-            ls -al
-          '''
-        }
-      }
+    tools {
+        nodejs 'NodeJS 8.9.4' // Đặt cấu hình NodeJS chính xác ở đầu pipeline
     }
 
-    stage ('Build') {
-      steps {
-        nodejs(nodeJSInstallationName: 'nodejs 8.9.4') {
-          sh 'echo "Build application..."'
-          sh 'npm run build'
-          sh 'echo "Build application successfully."'
-          sh 'ls -al'
+    stages {
+        stage('Install dependencies') {
+            steps {
+                sh '''
+                    echo "Installing..."
+                    npm install
+                    echo "Install dependencies successfully."
+                    ls -al
+                '''
+            }
         }
-        script {
-          stash includes: 'build/', name: 'build'
-          stash includes: 'docker/', name: 'docker_folder'
-        }
-      }
-    }
 
-    stage ('Test') {
-      steps {
-        nodejs(nodeJSInstallationName: 'nodejs 8.9.4') {
-          sh '''
-            echo "Run unit test..."
-            npm test
-            echo "Run unit test successfully."
-          '''
+        stage('Build') {
+            steps {
+                sh '''
+                    echo "Build application..."
+                    npm run build
+                    echo "Build application successfully."
+                    ls -al
+                '''
+                script {
+                    stash includes: 'build/', name: 'build'
+                    stash includes: 'docker/', name: 'docker_folder'
+                }
+            }
         }
-      }
-    }
 
-    stage ('Create docker images') {
-      steps {
-        script {
-          unstash 'build'
-          unstash 'docker_folder'
+        stage('Test') {
+            steps {
+                sh '''
+                    echo "Run unit test..."
+                    npm test
+                    echo "Run unit test successfully."
+                '''
+            }
         }
-        sh '''
-          ls -al
-          echo "Starting to build docker image"
-          docker build -t pick-color:v1 -f docker/Dockerfile .
-        '''
-      }
+
+        stage('Create docker images') {
+            steps {
+                script {
+                    unstash 'build'
+                    unstash 'docker_folder'
+                }
+                sh '''
+                    ls -al
+                    echo "Starting to build docker image"
+                    docker build -t pick-color:v1 -f docker/Dockerfile .
+                '''
+            }
+        }
     }
-  }
 }
