@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS 8.9.4' // Đặt cấu hình NodeJS chính xác ở đầu pipeline
+        nodejs 'NodeJS 8.9.4'
     }
 
     stages {
